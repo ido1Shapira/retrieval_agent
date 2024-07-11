@@ -26,10 +26,13 @@ class AgentInput(BaseModel):
 
 class Agent:
     def __init__(self,
+                 model_name: str,
+                 api_key: str = API_KEY,
                  temperature: float = 0.5,
-                 model_name: str = 'gemini-1.5-flash'):
+                 verbose: bool = True,
+                 max_iterations: int = 10):
         llm: BaseChatModel = ChatGoogleGenerativeAI(temperature=temperature,
-                                                    google_api_key=API_KEY,
+                                                    google_api_key=api_key,
                                                     model=model_name)
 
         tools: List[BaseTool] = [RetrieverTool(), SchemaDetectorTool()]
@@ -39,10 +42,10 @@ class Agent:
 
         self.agent_executor = AgentExecutor(agent=agent,
                                             tools=tools,
-                                            verbose=True,
+                                            verbose=verbose,
                                             handle_parsing_errors=True,
                                             memory=self.memory,
-                                            max_iterations=10)
+                                            max_iterations=max_iterations)
 
     def run(self, user_input: str) -> str:
         chat_history = self.memory.buffer_as_messages
