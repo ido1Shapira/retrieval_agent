@@ -1,6 +1,6 @@
 import streamlit as st
 
-from src.agent.schema_agent import SchemaAgent
+from src.agent.agent import Agent
 from src.ui.enums.character import Character
 from src.ui.enums.statis_strings import StaticStrings
 
@@ -13,7 +13,7 @@ class InteractionChat:
         if "messages" not in st.session_state:
             st.session_state.messages = []
 
-        self.agent = SchemaAgent()
+        self.agent = Agent()
 
     def on_user_input(self):
         for message in st.session_state.messages:

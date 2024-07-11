@@ -2,7 +2,7 @@ import os
 
 from dotenv import load_dotenv
 
-from src.agent.schema_agent import SchemaAgent
+from src.agent.agent import Agent
 from src.ui.interface import InteractionChat
 
 
@@ -11,7 +11,7 @@ def main(use_gui: bool):
         interface = InteractionChat()
         interface.on_user_input()
     else:
-        agent = SchemaAgent()
+        agent = Agent()
         user_input = "how many students got 'A' in Mathematics?"
 
         response = agent.run(user_input=user_input)

@@ -4,14 +4,15 @@ from typing import List
 from dotenv import load_dotenv
 from langchain.agents import AgentExecutor, create_structured_chat_agent
 from langchain.memory import ConversationBufferMemory
+from langchain.pydantic_v1 import BaseModel
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import BaseMessage
-from langchain_core.tools import BaseTool, tool
-from langchain_experimental.tools import PythonAstREPLTool
+from langchain_core.tools import BaseTool
 from langchain_google_genai import ChatGoogleGenerativeAI
-from pydantic import BaseModel
 
 from src.agent.prompt import prompt
+from src.agent.tools.retriever_tool import RetrieverTool
+from src.agent.tools.schema_detector_tool import SchemaDetectorTool
 
 # Setting up the api key
 load_dotenv()
@@ -23,7 +24,7 @@ class AgentInput(BaseModel):
     chat_history: List[BaseMessage]
 
 
-class SchemaAgent:
+class Agent:
     def __init__(self,
                  temperature: float = 0.5,
                  model_name: str = 'gemini-1.5-flash'):
@@ -31,7 +32,7 @@ class SchemaAgent:
                                                     google_api_key=API_KEY,
                                                     model=model_name)
 
-        tools: List[BaseTool] = [PythonAstREPLTool(), self.__get_schema_tool]
+        tools: List[BaseTool] = [RetrieverTool(), SchemaDetectorTool()]
         agent = create_structured_chat_agent(llm, tools, prompt)
 
         self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
@@ -51,21 +52,3 @@ class SchemaAgent:
         })
         agent_output = response["output"]
         return agent_output
-
-    @staticmethod
-    @tool("schema_detector_tool")
-    def __get_schema_tool(query: str) -> str:
-        """
-        Useful tool when you need help to determine the schema of your data based on a given query. It is
-        particularly useful when you need to understand the structure of your data, such as the fields and data types.
-
-        It accepts one input: user_input.
-
-        This tool will return the schema of the data or in case it does not figure out the schema it would return that it had failed.
-        """
-        if 'student' in query:
-            schema_path = os.path.join(os.getcwd(), 'data/students_schema.json')
-            with open(schema_path, 'r') as file:
-                return file.read()
-        else:
-            return "Observation: The tool failed to figure out the schema."
