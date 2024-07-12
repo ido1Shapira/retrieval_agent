@@ -3,8 +3,6 @@ from typing import Any
 
 from langchain_core.tools import BaseTool
 
-from src.utils import project_root_path
-
 
 class SchemaDetectorTool(BaseTool):
     name = "schema_detector_tool"
@@ -25,8 +23,13 @@ class SchemaDetectorTool(BaseTool):
     def _run(self, *args: Any, **kwargs: Any) -> Any:
         query: str = args[0]
         if 'student' in query:
-            schema_path = os.path.join(self.project_root_path, 'data/students_schema.json')
-            with open(schema_path, 'r') as file:
-                return file.read()
+            return self.__get_schema('data/schemas/students_schema.json')
+        elif 'parent' in query:
+            return self.__get_schema('data/schemas/parents_students_schema.json')
         else:
             return "Observation: The tool failed to figure out the schema."
+
+    def __get_schema(self, path):
+        schema_path = os.path.join(self.project_root_path, path)
+        with open(schema_path, 'r') as file:
+            return file.read()
