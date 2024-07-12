@@ -27,6 +27,7 @@ class AgentInput(BaseModel):
 class Agent:
     def __init__(self,
                  model_name: str,
+                 project_root_path: str,
                  api_key: str = API_KEY,
                  temperature: float = 0.5,
                  verbose: bool = True,
@@ -35,7 +36,7 @@ class Agent:
                                                     google_api_key=api_key,
                                                     model=model_name)
 
-        tools: List[BaseTool] = [RetrieverTool(), SchemaDetectorTool()]
+        tools: List[BaseTool] = [RetrieverTool(), SchemaDetectorTool(project_root_path)]
         agent = create_structured_chat_agent(llm, tools, prompt)
 
         self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
@@ -55,3 +56,11 @@ class Agent:
         })
         agent_output = response["output"]
         return agent_output
+
+
+def get_agent(config) -> Agent:
+    return Agent(model_name=config['Agent']['model_name'],
+                 project_root_path=config['Application']['base_path'],
+                 temperature=config['Agent']['temperature'],
+                 verbose=config['Agent']['verbose'],
+                 max_iterations=config['Agent']['max_iterations'])
