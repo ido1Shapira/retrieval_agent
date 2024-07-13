@@ -42,6 +42,9 @@ Respond directly if appropriate. Format is Action:```$JSON_BLOB```then Observati
 
 human = '''
 In order to answer you MUST first detect the schema of the data which my question is about.
+There are more than one schema available so in order to answer complicated questions you MUST detect more than one schema.
+In each schema detection process you MUST modify the query in a way that the query subject will be the schema you want to find. 
+Start figure out the answer once you think you have gotten all schemas you need to answer my query. 
  
 {input}
 

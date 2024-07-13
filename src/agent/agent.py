@@ -13,6 +13,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from src.agent.prompt import prompt
 from src.agent.tools.retriever_tool import RetrieverTool
 from src.agent.tools.schema_detector_tool import SchemaDetectorTool
+from src.logger import get_logger
 
 # Setting up the api key
 load_dotenv()
@@ -47,9 +48,12 @@ class Agent:
                                             handle_parsing_errors=True,
                                             memory=self.memory,
                                             max_iterations=max_iterations)
+        self.logger = get_logger(__name__)
 
     def run(self, user_input: str) -> str:
         chat_history = self.memory.buffer_as_messages
+        self.logger.info(f"Chat history: {chat_history}")
+        self.logger.info(f"Invoking agent with input: {user_input}")
         response = self.agent_executor.invoke({
             "input": user_input,
             "chat_history": chat_history,

@@ -11,12 +11,16 @@ class RetrieverInputs(BaseModel):
 
 class RetrieverTool(BaseTool):
     name = "retriever_tool"
-    description = """A tool that can retrieve data from a table by executing Python code and return the result.
-        It accepts one input: input. The input must be in the following format:
+    description = """
+        A versatile tool designed to execute Python code for retrieving data from tables and other sources. 
+        It accepts a single input in the following JSON format:
         {
-            "code": "The python code to execute"
+            "code": "The Python code to execute"
         }
-        This tool is useful for executing Python code and providing the result.
+        Upon receiving the input, the tool attempts to execute the provided Python code. 
+        If the execution is successful, it returns the result. 
+        In case of an error, the tool will return the error message.
+        This tool is particularly useful for dynamic data retrieval and processing using Python code.
     """
     args_schema = RetrieverInputs
 

@@ -22,7 +22,7 @@ class SchemaDetectorTool(BaseTool):
 
     def _run(self, *args: Any, **kwargs: Any) -> Any:
         query: str = args[0]
-        if 'student' in query:
+        if 'student' in query or 'grade' in query:
             return self.__get_schema('data/schemas/students_schema.json')
         elif 'parent' in query:
             return self.__get_schema('data/schemas/parents_students_schema.json')
