@@ -14,13 +14,18 @@ class TestOneDataTypeQueries(unittest.TestCase):
     Q2A: List[Dict[str, Any]] = [
         {
             "input": "how many students got 'A' in Mathematics?",
-            "answer": "2",
-            "condition": lambda expected, output: expected in output
+            "answer": 2,
+            "condition": lambda expected, output: str(expected) in output
         },
         {
             "input": "who are the only students that got 'A' in Mathematics?",
             "answer": ['John Doe', 'Jane Smith'],
             "condition": lambda expected, output: all(name in output for name in expected)
+        },
+        {
+            "input": "what is the average age of the students who got 'C' in History?",
+            "answer": 20,
+            "condition": lambda expected, output: str(expected) in output
         }
     ]
 

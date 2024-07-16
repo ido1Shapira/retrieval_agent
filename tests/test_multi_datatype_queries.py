@@ -16,6 +16,11 @@ class TestMultiDataTypeQueries(unittest.TestCase):
             "input": "what are the names of the parents that there children got 'A' in Mathematics?",
             "answer": ["Emily Brown", "Michael Johnson"],
             "condition": lambda expected, output: all(name in output for name in expected)
+        },
+        {
+            "input": "what is the number of male parents that at least one of their children got 'C' in History?",
+            "answer": 1,
+            "condition": lambda expected, output: str(expected) in output
         }
     ]
 

@@ -12,9 +12,12 @@ class SchemaDetectorTool(BaseTool):
 
         It accepts one input: user_input.
 
-        This tool will return the schema of the data or in case it does not figure out the schema it would return that it had failed.
+        This tool will returns the schema of the data or in case it does not figure out the schema it would return that it had failed.
     """
     project_root_path: str = None
+    output_template = """Tool found {schemas_number} schemas:
+    {schema}
+    """
 
     def __init__(self, project_root_path: str):
         super().__init__()
@@ -22,10 +25,17 @@ class SchemaDetectorTool(BaseTool):
 
     def _run(self, *args: Any, **kwargs: Any) -> Any:
         query: str = args[0]
-        if 'student' in query or 'grade' in query:
-            return self.__get_schema('data/schemas/students_schema.json')
-        elif 'parent' in query:
-            return self.__get_schema('data/schemas/parents_students_schema.json')
+        match_students_schema = 'student' in query or 'grade' in query
+        match_parents_schema = 'parent' in query
+        if match_students_schema and match_parents_schema:
+            two_schemas = f"""1) {self.__get_schema('data/schemas/students_schema.json')}\n\n 2) {self.__get_schema('data/schemas/parents_students_schema.json')}"""
+            return self.output_template.format(schemas_number=2, schema=two_schemas)
+        elif match_students_schema:
+            return self.output_template.format(schemas_number=1,
+                                               schema=self.__get_schema('data/schemas/students_schema.json'))
+        elif match_parents_schema:
+            return self.output_template.format(schemas_number=1,
+                                               schema=self.__get_schema('data/schemas/parents_students_schema.json'))
         else:
             return "Observation: The tool failed to figure out the schema."
 

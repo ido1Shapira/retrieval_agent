@@ -1,7 +1,9 @@
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 system = '''
-Respond to the human as helpfully and accurately as possible. You have access to the following tools:
+You are an assistant for question-answering tasks. Respond to the human as helpfully and accurately as possible.
+If you don't know the answer, just say that you don't know.
+You have access to the following tools:
 
 {tools}
 
@@ -13,6 +15,7 @@ Provide only ONE action per $JSON_BLOB, as shown:
 
 ```
 {{
+  "thought: consider previous and subsequent steps
   "action": $TOOL_NAME,
   "action_input": $INPUT
 }}
@@ -28,10 +31,10 @@ $JSON_BLOB
 ```
 Observation: action result
 ... (repeat Thought/Action/Observation N times)
-Thought: I know what to respond
 Action:
 ```
 {{
+  "thought": "I know what to respond"
   "action": "Final Answer",
   "action_input": "Final response to human"
 }}
@@ -45,7 +48,7 @@ In order to answer you MUST first detect the schema of the data which my questio
 There are more than one schema available so in order to answer complicated questions you MUST detect more than one schema.
 In each schema detection process you MUST modify the query in a way that the query subject will be the schema you want to find. 
 Start figure out the answer once you think you have gotten all schemas you need to answer my query. 
- 
+
 {input}
 
 {agent_scratchpad}

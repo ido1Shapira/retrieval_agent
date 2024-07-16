@@ -12,22 +12,23 @@ class RetrieverInputs(BaseModel):
 class RetrieverTool(BaseTool):
     name = "retriever_tool"
     description = """
-        A versatile tool designed to execute Python code for retrieving data from tables and other sources. 
+        A versatile tool designed to execute valid python code for retrieving data from tables and other sources. 
         It accepts a single input in the following JSON format:
         {
             "code": "The Python code to execute"
         }
         Upon receiving the input, the tool attempts to execute the provided Python code. 
-        If the execution is successful, it returns the result. 
-        In case of an error, the tool will return the error message.
+        If the execution is successful, it returns the result in the following format:
+        Observation: $PYTHON_CODE_OUTPUT. 
+        In case of an error, the tool will return the error message in the following format:
+        Observation: $ERROR_NAME: $ERROR_MESSAGE. 
+        Use the error name and error message to fix your python code. You may consider for split the python code into smaller pieces. 
+        
         This tool is particularly useful for dynamic data retrieval and processing using Python code.
     """
     args_schema = RetrieverInputs
+    python_tool = PythonAstREPLTool()
 
     def _run(self, *args: Any, **kwargs: Any) -> Any:
-        try:
-            python_tool = PythonAstREPLTool()
-            result = python_tool.invoke(kwargs['code'])
-            return f"Observation: {result}"
-        except Exception as e:
-            return f"Error: {str(e)}"
+        result = self.python_tool.invoke(kwargs['code'])
+        return f"Observation: {result}."
