@@ -3,12 +3,10 @@ from typing import List
 
 from dotenv import load_dotenv
 from langchain.agents import AgentExecutor, create_structured_chat_agent
-from langchain.memory import ConversationBufferMemory
 from langchain.pydantic_v1 import BaseModel
-from langchain_core.language_models import BaseChatModel
-from langchain_core.messages import BaseMessage
+from langchain_core.language_models import BaseLLM
 from langchain_core.tools import BaseTool
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_google_genai import GoogleGenerativeAI
 
 from src.agent.prompt import prompt
 from src.agent.tools.retriever_tool import RetrieverTool
@@ -20,11 +18,6 @@ load_dotenv()
 API_KEY: str | None = os.environ.get('GOOGLE_API_KEY', None)
 
 
-class AgentInput(BaseModel):
-    input: str
-    chat_history: List[BaseMessage]
-
-
 class Agent:
     def __init__(self,
                  model_name: str,
@@ -33,30 +26,24 @@ class Agent:
                  temperature: float = 0.5,
                  verbose: bool = True,
                  max_iterations: int = 10):
-        llm: BaseChatModel = ChatGoogleGenerativeAI(temperature=temperature,
-                                                    google_api_key=api_key,
-                                                    model=model_name)
+        llm: BaseLLM = GoogleGenerativeAI(temperature=temperature,
+                                          google_api_key=api_key,
+                                          model=model_name)
 
         tools: List[BaseTool] = [RetrieverTool(), SchemaDetectorTool(project_root_path)]
         agent = create_structured_chat_agent(llm, tools, prompt)
-
-        self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 
         self.agent_executor = AgentExecutor(agent=agent,
                                             tools=tools,
                                             verbose=verbose,
                                             handle_parsing_errors=True,
-                                            memory=self.memory,
                                             max_iterations=max_iterations)
         self.logger = get_logger(__name__)
 
     def run(self, user_input: str) -> str:
-        chat_history = self.memory.buffer_as_messages
-        self.logger.info(f"Chat history: {chat_history}")
         self.logger.info(f"Invoking agent with input: {user_input}")
         response = self.agent_executor.invoke({
             "input": user_input,
-            "chat_history": chat_history,
         })
         agent_output = response["output"]
         return agent_output
