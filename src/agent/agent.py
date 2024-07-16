@@ -3,11 +3,10 @@ from typing import List
 
 from dotenv import load_dotenv
 from langchain.agents import AgentExecutor, create_structured_chat_agent
-from langchain.pydantic_v1 import BaseModel
 from langchain_core.language_models import BaseLLM
 from langchain_core.tools import BaseTool
-from langchain_google_genai import GoogleGenerativeAI
 
+from src.agent.llm_client import LLMClient
 from src.agent.prompt import prompt
 from src.agent.tools.retriever_tool import RetrieverTool
 from src.agent.tools.schema_detector_tool import SchemaDetectorTool
@@ -26,9 +25,9 @@ class Agent:
                  temperature: float = 0.5,
                  verbose: bool = True,
                  max_iterations: int = 10):
-        llm: BaseLLM = GoogleGenerativeAI(temperature=temperature,
-                                          google_api_key=api_key,
-                                          model=model_name)
+        llm: BaseLLM = LLMClient(temperature=temperature,
+                                 api_key=api_key,
+                                 model_name=model_name)
 
         tools: List[BaseTool] = [RetrieverTool(), SchemaDetectorTool(project_root_path)]
         agent = create_structured_chat_agent(llm, tools, prompt)
