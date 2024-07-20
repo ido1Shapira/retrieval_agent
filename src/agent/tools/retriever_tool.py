@@ -12,7 +12,7 @@ class RetrieverInputs(BaseModel):
 class RetrieverTool(BaseTool):
     name = "retriever_tool"
     description = """
-        A versatile tool designed to execute valid python code for retrieving data from tables and other sources. 
+        Suitable tool to execute only valid python code for retrieving data from tables and other sources. 
         It accepts a single input in the following JSON format:
         {
             "code": "The Python code to execute"
@@ -25,7 +25,7 @@ class RetrieverTool(BaseTool):
         Use the error name and error message to fix your python code. You may consider for split the python code into smaller pieces. 
         
         This tool is particularly useful for dynamic data retrieval and processing using Python code.
-    """
+        Always end the Python code with print command in order to review the results."""
     args_schema = RetrieverInputs
     python_tool = PythonAstREPLTool()
 

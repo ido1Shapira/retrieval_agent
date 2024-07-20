@@ -1,7 +1,13 @@
 import os
-from typing import Any
+from typing import Any, Dict
 
 from langchain_core.tools import BaseTool
+from pydantic import BaseModel
+
+
+class Pattern(BaseModel):
+    match_condition: bool
+    schema_name: str
 
 
 class SchemaDetectorTool(BaseTool):
@@ -16,7 +22,7 @@ class SchemaDetectorTool(BaseTool):
     """
     project_root_path: str = None
     output_template = """Tool found {schemas_number} schemas:
-    {schema}
+    {schemas}
     """
 
     def __init__(self, project_root_path: str):
@@ -25,21 +31,33 @@ class SchemaDetectorTool(BaseTool):
 
     def _run(self, *args: Any, **kwargs: Any) -> Any:
         query: str = args[0]
-        match_students_schema = 'student' in query or 'grade' in query
-        match_parents_schema = 'parent' in query
-        if match_students_schema and match_parents_schema:
-            two_schemas = f"""1) {self.__get_schema('data/schemas/students_schema.json')}\n\n 2) {self.__get_schema('data/schemas/parents_students_schema.json')}"""
-            return self.output_template.format(schemas_number=2, schema=two_schemas)
-        elif match_students_schema:
-            return self.output_template.format(schemas_number=1,
-                                               schema=self.__get_schema('data/schemas/students_schema.json'))
-        elif match_parents_schema:
-            return self.output_template.format(schemas_number=1,
-                                               schema=self.__get_schema('data/schemas/parents_students_schema.json'))
+        all_patterns: Dict[str, Pattern] = {
+            'students_schema': Pattern(
+                match_condition='student' in query or 'grade' in query,
+                schema_name='students_schema.json'
+            ),
+            'parents_students_schema': Pattern(
+                match_condition='parent' in query,
+                schema_name='parents_students_schema.json'
+            ),
+            'lessons_schema': Pattern(
+                match_condition='lesson' in query,
+                schema_name='lessons_schema.json'
+            )
+        }
+        match_counter = 0
+        match_schemas = []
+        for pattern in all_patterns:
+            if all_patterns[pattern].match_condition:
+                match_counter += 1
+                match_schemas.append(f"{match_counter})\n{self.__get_schema(all_patterns[pattern].schema_name)}")
+
+        if match_counter > 0:
+            return self.output_template.format(schemas_number=match_counter, schemas="\n\n".join(match_schemas))
         else:
             return "Observation: The tool failed to figure out the schema."
 
     def __get_schema(self, path):
-        schema_path = os.path.join(self.project_root_path, path)
+        schema_path = os.path.join(self.project_root_path, 'data/schemas', path)
         with open(schema_path, 'r') as file:
             return file.read()
