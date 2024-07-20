@@ -39,9 +39,8 @@ Action:
   "action_input": "Final response to human"
 }}
 
-In order to answer you MUST first detect the schema of the data which my question is about.
-There are more than one schema available so in order to answer complicated questions you MUST detect more than one schema.
-In each schema detection process you MUST modify the query in a way that the query subject will be the schema you want to find. 
+In order to answer you MUST first detect the schema of the data which my question is about. There are more than one schema available.
+In each schema detection process you MUST modify the query in a way that the query subject will be the schema you want to find.
 Start figure out the answer once you think you have gotten all schemas you need to answer my query.
 
 Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use tools if necessary. 
